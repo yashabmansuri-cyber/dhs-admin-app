@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#071d49"><meta name="description" content="Delhi Home Service Admin App">
+<link rel="manifest" href="manifest.json"><title>DHS Admin App</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#eef3f9,#f8fafc);color:#111;padding-bottom:78px}
+header{height:70px;background:linear-gradient(135deg,#071d49ee,#123875dd);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:30;border-bottom:1px solid #ffffff35;box-shadow:0 5px 22px #071d4930}
+.logo{font-weight:900;letter-spacing:5px;font-size:24px}.logo i{color:#f4511e;font-style:normal}header small{display:block;font-size:9px;color:#dbe5f7;letter-spacing:0}
+.head-actions{display:flex;gap:8px;align-items:center}.glass{background:#ffffff1c!important;color:#fff;border:1px solid #ffffff45!important;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 5px 18px #0002}.icon-btn{width:44px;height:44px;padding:8px;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative}.icon-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2}
+.badge{position:absolute;right:3px;top:2px;background:#f4511e;color:#fff;border-radius:20px;min-width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center;border:2px solid #173a73}.pulse{animation:pulse 1s infinite}@keyframes pulse{50%{transform:scale(1.12)}}
+.notif-panel{position:fixed;right:12px;top:77px;width:min(350px,calc(100vw - 24px));max-height:65vh;overflow:auto;background:#ffffffea;border:1px solid #ffffffaa;border-radius:20px;padding:12px;box-shadow:0 15px 45px #071d4940;backdrop-filter:blur(20px);z-index:40;display:none}.notif-panel.show{display:block}.notif-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.notif{padding:11px;border-radius:14px;background:#eef4ff;margin:7px 0;border:1px solid #dce6f7}.notif.new{border-left:4px solid #f4511e}
+main{padding:12px}.screen{display:none}.screen.active{display:block}.title{font-size:21px;font-weight:800;margin:7px 0 13px}
+.card{background:#ffffffd9;border:1px solid #ffffffaa;border-radius:18px;padding:13px;margin-bottom:12px;box-shadow:0 8px 25px #071d4910;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{min-height:92px}.stat b{font-size:24px;color:#071d49}.stat span{display:block;color:#707985;font-size:10px;font-weight:700;margin-bottom:8px}
+input,textarea,select{width:100%;padding:10px;border:1px solid #cfd6df;border-radius:11px;background:#ffffffcc;font:inherit;margin-top:5px}label{font-size:11px;font-weight:800}.field{margin-bottom:10px}
+button{border:0;border-radius:12px;padding:10px 12px;font-weight:800;cursor:pointer}.primary{background:#071d49;color:#fff}.orange{background:#f4511e;color:#fff}.green{background:#0a9d42;color:#fff}.light{background:#eef2f7;color:#071d49}.glass-dark{background:#ffffff18;color:#fff;border:1px solid #ffffff40}
+.row{display:flex;gap:7px;align-items:center}.row>*{flex:1}.booking{border:1px solid #ffffffaa;border-radius:16px;padding:12px;margin:9px 0;background:#ffffffdc;box-shadow:0 6px 20px #071d4910}.booking h3{margin:0 0 7px;font-size:15px}.muted{font-size:11px;color:#707985;line-height:1.5}
+.item{display:grid;grid-template-columns:1fr 70px 70px 30px;gap:5px;margin:7px 0}.item input{margin:0}.del{padding:4px;background:#e53935;color:#fff}.total{font-size:19px;font-weight:900;text-align:right;margin:12px 0}
+nav{position:fixed;bottom:0;left:0;right:0;height:72px;background:#ffffffdf;border-top:1px solid #ffffffaa;display:flex;justify-content:space-around;z-index:30;box-shadow:0 -8px 25px #071d4915;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}nav button{background:none;color:#77808c;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:3px}nav svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:2}nav .active{color:#f4511e}.fab{width:52px;height:52px;border-radius:16px;background:#f4511e;color:#fff;margin-top:-14px;border:4px solid #f3f5f8;box-shadow:0 7px 18px #f4511e55}
+.login{position:fixed;inset:0;background:#eef3f9;display:none;align-items:center;justify-content:center;padding:18px;z-index:99}.login .box{max-width:380px;width:100%}
+#invoice{background:#fff;padding:25px;border:1px solid #222;margin-top:12px}.invoice-head{display:flex;justify-content:space-between;border-bottom:1px solid #071d49;padding-bottom:15px}table{width:100%;border-collapse:collapse;margin-top:18px;font-size:12px}th{background:#071d49;color:#fff}th,td{padding:7px;border:1px solid #ddd;text-align:left}
+@media(max-width:600px){.item{grid-template-columns:1fr 55px 65px 30px}.row{flex-wrap:wrap}.row>*{min-width:45%}#installBtn{display:none!important}}@media print{body{background:#fff;padding:0}header,nav,.screen:not(#bill),.actions,.no-print{display:none!important}#invoice{border:0;margin:0;display:block}}
+
+/* DHS BILL DESIGN */
+.bill-editor{background:#fff;border:1px solid #dce2eb;border-radius:12px;padding:15px;margin-bottom:16px;box-shadow:0 2px 7px #0000000d}
+.bill-grid{display:grid;grid-template-columns:1.1fr 1.1fr .7fr .7fr;gap:12px}.bill-field label{font-size:12px;font-weight:700;display:block;margin-bottom:5px}.bill-field input,.bill-field textarea,.bill-field select{width:100%;border:1px solid #cfd6df;border-radius:7px;padding:9px;background:#fff}.bill-field textarea{min-height:55px;resize:vertical}.bill-full{grid-column:span 2}
+.bill-items-title{font-size:16px;font-weight:800;margin:16px 0 8px}.bill-item-head,.bill-item-row{display:grid;grid-template-columns:34px 1.45fr 1.65fr .55fr .8fr .85fr 55px;gap:4px}.bill-item-head{background:#071d49;color:#fff;padding:8px;font-size:11px}.bill-item-row{border:1px solid #d8dee7;border-top:0;padding:6px;background:#fff}.bill-item-row input{width:100%;padding:7px;border:1px solid #d4d9e0;border-radius:5px;font-size:12px}.bill-amount{padding:8px;font-size:12px;text-align:right}.bill-del{border:0;background:#e53935;color:#fff;border-radius:5px;font-size:18px}.bill-add{margin-top:8px;background:#0d6efd;color:#fff;border:0;border-radius:7px;padding:9px 13px}.bill-bottom{display:grid;grid-template-columns:1.4fr .8fr;gap:18px;margin-top:15px}.bill-notes{min-height:100px}.bill-summary{border:1px solid #d7dde6;border-radius:8px;padding:12px}.bill-sumline{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0}.bill-sumtotal{border-top:2px solid #071d49;margin-top:5px;padding-top:10px;font-size:20px;font-weight:800}.bill-actions{display:flex;gap:9px;margin-top:12px}.bill-generate{flex:1;background:#0a9d42;color:#fff;border:0;border-radius:7px;padding:12px;font-weight:700}.bill-reset{background:#e9edf2;border:0;border-radius:7px;padding:12px 18px}.bill-preview-title{font-size:17px;font-weight:800;margin:18px 0 9px}.bill-preview-wrap{display:flex;gap:12px;align-items:flex-start}.bill-preview-actions{width:130px;display:flex;flex-direction:column;gap:8px}.bill-preview-actions button{border:0;border-radius:7px;padding:11px 8px;font-weight:700}.bill-print{background:#071d49;color:#fff}.bill-download{background:#12a84a;color:#fff}.bill-close{background:#e9edf2}
+.dhs-invoice{position:relative;width:210mm;height:297mm;min-height:297mm;background:#fff;border:1px solid #222;padding:12mm 7mm 8mm;overflow:hidden;color:#111}.dhs-invoice:after{content:"";position:absolute;left:7mm;right:7mm;top:41mm;border-top:1.2px solid #152e73}.dhs-inv-head{height:31mm;display:flex;justify-content:space-between}.dhs-brand-logo{font-size:55px;font-weight:900;letter-spacing:10px;color:#183875;line-height:.9}.dhs-brand-logo span{color:#f4511e}.dhs-company{font-size:21px;font-weight:800;margin-top:6px}.dhs-tag{font-size:13px;margin-top:5px}.dhs-inv-meta{text-align:right;font-size:13px;line-height:1.65}.dhs-section-title{font-size:25px;font-weight:900;margin:8mm 0 7mm}.dhs-info-area{display:grid;grid-template-columns:1.2fr .85fr;gap:8mm}.dhs-customer-info{font-size:15px;line-height:1.65}.dhs-crow{display:grid;grid-template-columns:30mm 5mm 1fr;margin-bottom:5px}.dhs-crow b{font-size:13px}.dhs-contact-area{display:grid;grid-template-columns:43mm 1fr;gap:5mm}.dhs-review-box{border:1px solid #bbb;border-radius:5px;text-align:center;padding:4mm;height:48mm}.dhs-google{font-size:23px;font-weight:700;margin:1mm 0}.dhs-google span:nth-child(1){color:#4285f4}.dhs-google span:nth-child(2){color:#db4437}.dhs-google span:nth-child(3){color:#f4b400}.dhs-google span:nth-child(4){color:#4285f4}.dhs-qr{width:31mm;height:31mm;object-fit:contain;border:1px solid #f0a22e;border-radius:5px}.dhs-contacts{font-size:11px;line-height:1.4}.dhs-contact{display:flex;gap:3mm;margin-bottom:7mm;align-items:center}.dhs-icon{width:10mm;height:10mm;border:1px solid #152e73;border-radius:50%;display:grid;place-items:center;color:#152e73;font-size:16px;flex:none}.dhs-contact b{display:block;font-size:12px}.dhs-table{width:100%;border-collapse:collapse;margin-top:6mm;font-size:10px;table-layout:fixed}.dhs-table th{background:#071d49;color:#fff;padding:3mm 2mm;text-align:left;font-size:10px}.dhs-table td{border:1px solid #d4d9e0;padding:2.4mm 2mm;vertical-align:top;word-wrap:break-word;height:13mm}.dhs-table th:nth-child(1){width:7%}.dhs-table th:nth-child(2){width:22%}.dhs-table th:nth-child(3){width:27%}.dhs-table th:nth-child(4){width:12%}.dhs-table th:nth-child(5){width:16%}.dhs-table th:nth-child(6){width:16%}.dhs-bottom-area{position:absolute;left:7mm;right:7mm;bottom:15mm;height:69mm}.dhs-notes-area{position:absolute;left:0;top:0;width:37%;font-size:13px;line-height:1.5}.dhs-notes-area h4{color:#071d49;font-size:15px;margin-bottom:6px}.dhs-notes-area li{margin:6px 0 6px 15px;font-size:13px}.dhs-signature-img{display:block;width:42mm;height:18mm;object-fit:contain;object-position:left bottom;margin-top:1mm}.dhs-stamp-img{position:absolute;left:78mm;bottom:1mm;width:31mm;height:31mm;object-fit:contain}.dhs-signature-area{position:absolute;left:0;bottom:0;width:37%;height:30mm;border-top:1px solid #071d49;padding-top:4mm}.dhs-auth{font-size:9px}.dhs-company-small{font-size:11px;font-weight:700;margin-top:2px}.dhs-totals{position:absolute;right:0;top:0;width:37%;font-size:11px}.dhs-tline{display:flex;justify-content:space-between;padding:2.5mm 0}.dhs-ttotal{border-top:1.3px solid #071d49;border-bottom:1px solid #071d49;padding:4mm 0;font-size:16px;font-weight:800;display:flex;justify-content:space-between}.dhs-words{font-size:10px;margin-top:3mm}.dhs-status{margin-top:5mm;background:#071d49;color:#fff;text-align:center;border-radius:4px;padding:3.5mm;font-size:12px;font-weight:700}.dhs-footer{position:absolute;left:7mm;right:7mm;bottom:7mm;border-top:1px solid #152e73;padding-top:3mm;text-align:center;font-size:9px;word-spacing:3px}.dhs-footer span{margin:0 5mm;color:#142d6e}
+@media(max-width:900px){.bill-grid{grid-template-columns:1fr 1fr}.bill-bottom{grid-template-columns:1fr}.bill-preview-wrap{display:block}.bill-preview-actions{width:100%;flex-direction:row;margin-bottom:10px}.bill-preview-actions button{flex:1}.dhs-invoice{transform-origin:top left;transform:scale(.82);margin-bottom:-190px}}
+@media(max-width:600px){.bill-grid{grid-template-columns:1fr}.bill-full{grid-column:auto}.bill-item-head{display:none}.bill-item-row{grid-template-columns:1fr 1fr;gap:8px;padding:10px;border-radius:12px;margin-bottom:8px;border:1px solid #d8dee7}.bill-item-row>div:first-child{display:none}.bill-item-row input:nth-child(2),.bill-item-row input:nth-child(3){grid-column:span 2}.bill-bottom{display:block}.bill-summary{margin-top:14px;border-radius:14px}.bill-preview-wrap{overflow:hidden}.dhs-invoice{width:210mm;transform:scale(.43);transform-origin:top left;margin-bottom:-620px}.bill-preview-actions{flex-wrap:wrap}.bill-preview-actions button{min-width:30%}}
+@media print{@page{size:A4;margin:0}html,body{width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;background:#fff!important}body{overflow:visible!important}.header,nav,main>.title,main>.screen:not(#bill),.bill-editor,.bill-preview-title,.bill-preview-actions,.toast,.notif-panel{display:none!important}.layout,main,#bill{display:block!important;width:210mm!important;height:297mm!important;min-height:297mm!important;padding:0!important;margin:0!important;overflow:visible!important}.dhs-invoice{display:block!important;position:absolute!important;left:0!important;top:0!important;width:210mm!important;height:297mm!important;min-height:297mm!important;margin:0!important;padding:12mm 7mm 8mm!important;border:none!important;transform:none!important;overflow:hidden!important;background:#fff!important;visibility:visible!important}.dhs-invoice *{visibility:visible!important}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
+
+/* PAYMENT QR / CASH MODAL */
+.payment-modal{position:fixed;inset:0;background:rgba(0,0,0,.68);display:none;align-items:center;justify-content:center;z-index:9999;padding:18px}.payment-modal.show{display:flex}.payment-box{width:min(430px,100%);background:#fff;border-radius:18px;padding:20px;text-align:center;box-shadow:0 20px 70px #0006}.payment-box h2{margin:0 0 8px;color:#071d49}.payment-amount{font-size:30px;font-weight:900;margin:8px 0 15px;color:#0a9d42}.qr-wrap{display:flex;justify-content:center;align-items:center;background:#fff;padding:12px;border:1px solid #ddd;border-radius:12px;min-height:270px}.qr-wrap img,.qr-wrap canvas{max-width:100%;height:auto}.payment-loading{padding:80px 10px;font-weight:800;color:#071d49}.pay-success-btn{width:100%;border:0;border-radius:10px;padding:13px;margin-top:12px;background:#0a9d42;color:#fff;font-weight:800;font-size:15px}.pay-cancel-btn{width:100%;border:0;border-radius:10px;padding:11px;margin-top:8px;background:#e9edf2;color:#111;font-weight:700}.success-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:10000;padding:18px}.success-modal.show{display:flex}.success-box{width:min(360px,100%);background:#fff;border-radius:20px;padding:30px 20px;text-align:center}.success-icon{width:70px;height:70px;border-radius:50%;background:#0a9d42;color:#fff;display:grid;place-items:center;font-size:40px;margin:0 auto 15px}.success-box h2{margin:0 0 7px;color:#0a9d42}.success-box p{margin:0;color:#555}.payment-note{font-size:12px;color:#666;margin-top:9px}.upi-id{font-weight:700;color:#071d49;margin-top:5px}
+</style><style>.bill-history-modal{display:none;position:fixed;inset:0;background:#071d4988;z-index:100;align-items:center;justify-content:center;padding:14px}.bill-history-modal.show{display:flex}.bill-history-box{width:min(720px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:0 20px 60px #0005}.bill-history-head{position:sticky;top:0;background:#fff;padding:16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e5e7eb;z-index:2}.bill-history-item{margin:10px 14px;padding:14px;border:1px solid #dce2eb;border-radius:14px;background:#f8fafc}.bill-history-row{display:flex;justify-content:space-between;gap:10px;align-items:center}.bill-history-item h3{margin:4px 0}.bill-history-view{border:0;border-radius:9px;background:#071d49;color:#fff;padding:9px 13px;font-weight:700}.bill-history-empty{padding:25px;text-align:center;color:#667085}
+/* RESET TODAY */
+.reset-modal{position:fixed;inset:0;background:#071d4966;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:18px;z-index:100}
+.reset-modal.show{display:flex}
+.reset-box{width:min(390px,100%);background:#fff;border-radius:22px;padding:20px;box-shadow:0 22px 70px #071d4955}
+.reset-box h2{margin:0 0 7px;color:#071d49;font-size:20px}
+.reset-box p{margin:0 0 14px}
+.reset-box .reset-actions{display:flex;gap:8px;margin-top:14px}
+.reset-box .reset-actions button{flex:1}
+.reset-loading{text-align:center;padding:10px 0}
+.reset-spinner{width:48px;height:48px;border:5px solid #e8edf5;border-top-color:#f4511e;border-radius:50%;margin:4px auto 14px;animation:resetspin .8s linear infinite}
+@keyframes resetspin{to{transform:rotate(360deg)}}
+.reset-success-icon{width:58px;height:58px;border-radius:50%;background:#0a9d42;color:#fff;font-size:34px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.profile-reset{margin-top:12px;border:1px solid #ffd1c4;background:#fff5f1;color:#d83b0c}
+.header-install-small{display:none;margin-top:3px;padding:4px 9px;border-radius:8px;background:#f4511e;color:#fff;font-size:10px;font-weight:800;line-height:1;box-shadow:0 3px 10px #071d4920}
+.header-install-small.show{display:inline-block}
+</style></head><body>
+<header>
+<div><div class="logo">D H <i>S</i></div><small>Delhi Home Service · Admin</small><button id="installSmallBtn" class="header-install-small" onclick="installDHS()">⬇ Install App</button></div>
+<div class="head-actions">
+<button id="notifBtn" class="glass icon-btn" title="Notifications" onclick="toggleNotifications()"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span id="notifBadge" class="badge" style="display:none">0</span></button>
+<button id="installBtn" class="glass icon-btn" title="Install DHS Admin" style="display:none;font-size:11px;width:auto;padding:0 12px;gap:5px" onclick="installDHS()">⬇ Install</button>
+<button class="glass icon-btn" title="Profile" onclick="show('profile')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 15-5 16 0"/></svg></button>
+</div></header>
+
+<div id="notifPanel" class="notif-panel"><div class="notif-head"><b>Notifications</b><button class="light" onclick="clearNotifications()">Clear</button></div><div id="notifList"><div class="muted">No new notifications.</div></div></div>
+<div id="billHistoryModal" class="bill-history-modal" aria-hidden="true"><div class="bill-history-box"><div class="bill-history-head"><div><b>Saved Bills</b><div class="muted">All generated bills are saved here</div></div><button class="light" onclick="closeBillHistory()">✕</button></div><div id="billHistoryList"></div></div></div>
+<main>
+<section id="home" class="screen active"><div class="title">⌂ Dashboard</div><div class="stats">
+<div class="card stat"><span>Total Bookings</span><b id="bookingStat">0</b></div>
+<div class="card stat" id="totalBillsCard" onclick="openBillHistory()" style="cursor:pointer"><span>Total Bills</span><b id="billStat">0</b><small style="display:block;margin-top:5px;color:#6b7280">Tap to view saved bills</small></div>
+<div class="card stat"><span>Total Payments</span><b id="paymentStat">₹0</b></div>
+<div class="card stat"><span>New Notifications</span><b id="newStat">0</b></div>
+</div><div class="card"><b>Customer Website → DHS Admin</b><p class="muted">Customer website se booking submit hote hi Firestore se notification aayegi. App open hone par alert sound automatically band ho jayega.</p></div><div id="recent"></div></section>
+
+<section id="bookings" class="screen"><div class="title">▣ Bookings</div><div class="card"><input id="search" placeholder="Customer, phone, service, area..." oninput="renderBookings()"></div><div id="bookingList"></div></section>
+
+<section id="bill" class="screen"><div class="title">▤ Create Bill</div>
+<div class="bill-editor">
+<div class="bill-grid">
+<div class="bill-field"><label>Customer Name *</label><input id="name"></div>
+<div class="bill-field"><label>Customer Number *</label><input id="phone" type="tel"></div>
+<div class="bill-field"><label>Invoice No.</label><input id="invoice"></div>
+<div class="bill-field"><label>Date</label><input id="date" type="date"></div>
+<div class="bill-field bill-full"><label>Service Address *</label><input id="address"></div>
+<div class="bill-field"><label>Service Type *</label><textarea id="service"></textarea></div>
+</div>
+<div class="bill-items-title">WORK / ITEMS</div>
+<div class="bill-item-head"><div>#</div><div>Description *</div><div>Details</div><div>Qty.</div><div>Rate (₹)</div><div>Amount (₹)</div><div>Action</div></div>
+<div id="items"></div><button class="bill-add" onclick="addItem()">＋ Add Item</button>
+<div class="bill-bottom">
+<div class="bill-field"><label>Notes</label><textarea id="notes" class="bill-notes">• All work has been completed successfully.
+• Please ensure payment is made upon completion of service.
+• Thank you for choosing Delhi Home Service.</textarea></div>
+<div class="bill-summary">
+<div class="bill-sumline"><span>Sub Total</span><b id="subtotal">₹0.00</b></div>
+<div class="bill-sumline"><span>Discount</span><input id="discount" type="number" value="0" min="0" oninput="calc()"></div>
+<div class="bill-sumline bill-sumtotal"><span>Total Amount</span><span id="total">₹0.00</span></div>
+<div class="bill-sumline"><span>Payment Status</span><select id="paymentStatus"><option>PAID</option><option>PENDING</option></select></div>
+<div class="bill-sumline"><span>Payment Method</span><select id="paymentMethod"><option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Razorpay</option></select></div>
+<div class="bill-actions"><button class="bill-generate" onclick="generate()">▣ Generate Bill</button><button class="bill-reset" onclick="resetBill()">Reset</button></div>
+</div></div></div>
+
+<div class="bill-preview-title">INVOICE PREVIEW</div>
+<div class="bill-preview-wrap"><div id="invoice" class="dhs-invoice">
+<div class="dhs-inv-head"><div><div class="dhs-brand-logo">D H <span>S</span></div><div class="dhs-company">Delhi Home Service</div><div class="dhs-tag">Professional Home Repair Experts</div></div>
+<div class="dhs-inv-meta"><b>Invoice No:</b> <span id="pInvoice"></span><br><b>Date:</b> <span id="pDate"></span></div></div>
+<div class="dhs-section-title">SERVICE INVOICE</div>
+<div class="dhs-info-area"><div class="dhs-customer-info">
+<div class="dhs-crow"><b>Customer Name</b><span>:</span><span id="pName">—</span></div>
+<div class="dhs-crow"><b>Customer Number</b><span>:</span><span id="pPhone">—</span></div>
+<div class="dhs-crow"><b>Service Address</b><span>:</span><span id="pAddress">—</span></div>
+<div class="dhs-crow"><b>Service Type</b><span>:</span><span id="pService">—</span></div></div>
+<div class="dhs-contact-area"><div class="dhs-review-box"><div style="font-size:12px">Review us on</div><div class="dhs-google"><span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span></div><img class="dhs-qr" src="images/review-qr.png" alt="Google Review QR"></div>
+<div class="dhs-contacts"><div class="dhs-contact"><div class="dhs-icon">✉</div><div><b>Email</b>delhihomeservice09@gmail.com</div></div><div class="dhs-contact"><div class="dhs-icon">◎</div><div><b>Website</b>delhihomeservices.netlify.app</div></div><div class="dhs-contact"><div class="dhs-icon">☎</div><div><b>Call / WhatsApp</b>97184 48382</div></div></div></div></div>
+<table class="dhs-table"><thead><tr><th>#</th><th>Description</th><th>Details</th><th>Qty.</th><th>Rate (₹)</th><th>Amount (₹)</th></tr></thead><tbody id="pItems"></tbody></table>
+<div class="dhs-bottom-area"><div class="dhs-notes-area"><h4>Notes:</h4><ul id="pNotes"></ul></div>
+<div class="dhs-signature-area"><div class="dhs-auth">Authorized Signature</div><div class="dhs-company-small">Delhi Home Service</div><img class="dhs-signature-img" src="images/dhs-signature.png" alt="DHS Authorized Signature"><img class="dhs-stamp-img" src="images/dhs-stamp.png" alt="DHS Stamp"></div>
+<div class="dhs-totals"><div class="dhs-tline"><span>Sub Total</span><b id="pSubtotal">₹0.00</b></div><div class="dhs-tline"><span>Discount</span><b id="pDiscount">- ₹0.00</b></div><div class="dhs-ttotal"><span>Total Amount</span><span id="pTotal">₹0.00</span></div><div class="dhs-words" id="pWords">(Rupees Zero Only)</div><div class="dhs-status" id="pStatus">Payment Status: PAID</div></div></div>
+<div class="dhs-footer">✓ Verified Professionals <span>|</span> ✓ On Time Service <span>|</span> ✓ Trusted by Customers <span>|</span> ✓ Quality Assured</div>
+</div>
+<div class="bill-preview-actions"><button class="bill-print" onclick="printBill()">🖨 Print / PDF</button><button class="bill-download" onclick="downloadPDF()">⬇ Download PDF</button><button style="background:#0a9d42;color:#fff" onclick="payCash()">💵 Pay Cash</button><button style="background:#6d28d9;color:#fff" onclick="payQR()">▣ Pay QR</button><button class="bill-close" onclick="$('invoice').scrollIntoView({behavior:'smooth'})">View Bill</button></div></div></section>
+
+<section id="payments" class="screen"><div class="title">▤ Payments</div><div id="paymentsList"></div></section>
+<section id="profile" class="screen"><div class="title">♟ Profile</div><div class="card"><b>Delhi Home Service</b><p class="muted">97184 48382<br>delhihomeservice09@gmail.com<br>delhihomeservices.netlify.app</p></div><button class="profile-reset" style="width:100%" onclick="openResetToday()">↻ Reset Today Update</button><button class="primary" style="width:100%;margin-top:9px" onclick="logout()">Logout</button></section>
+</main>
+
+<nav>
+<button id="nHome" class="active" onclick="show('home')"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</button>
+<button id="nBookings" onclick="show('bookings')"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>Bookings</button>
+<button class="fab" onclick="show('bill');resetBill()"><svg viewBox="0 0 24 24" style="width:27px"><path d="M12 5v14M5 12h14"/></svg>Bill</button>
+<button id="nPayments" onclick="show('payments')"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>Payment</button>
+</nav>
+
+
+
+</div>
+
+<div id="resetPasswordModal" class="reset-modal" aria-hidden="true">
+  <div class="reset-box">
+    <h2>Reset Today Update</h2>
+    <p class="muted">Aaj ki bookings, bills, payments aur notifications delete karne ke liye admin password enter karein.</p>
+    <label>Admin Password</label>
+    <input id="resetPassword" type="password" placeholder="Password">
+    <div id="resetPasswordError" class="muted" style="color:#d92d20;margin-top:7px"></div><button id="forgotResetBtn" class="light" style="display:none;border:0;background:none;color:#071d49;text-decoration:underline;font-size:12px;padding:6px 0;margin-top:2px" >Reset Password</button>
+    <div class="reset-actions">
+      <button class="light" onclick="closeResetToday()">Cancel</button>
+      <button class="orange" onclick="confirmResetToday()">Delete Today Update</button>
+    </div>
+  </div>
+</div>
+
+<div id="resetLoadingModal" class="reset-modal" aria-hidden="true">
+  <div class="reset-box reset-loading">
+    <div class="reset-spinner"></div>
+    <h2>Updating…</h2>
+    <p class="muted">Today's data delete ho raha hai. Please wait 5 seconds.</p>
+  </div>
+</div>
+
+<div id="resetSuccessModal" class="reset-modal" aria-hidden="true">
+  <div class="reset-box reset-loading">
+    <div class="reset-success-icon">✓</div>
+    <h2>Deleted Today Update Successfully</h2>
+    <p class="muted">Today's bookings, bills, payments and notifications reset ho gaye.</p>
+  </div>
+</div>
+
+<div id="login" class="login"><div class="box card"><div class="logo" style="text-align:center;color:#183875">D H <i>S</i></div><h2 style="text-align:center">Admin Login</h2><input id="email" type="email" placeholder="Admin email"><input id="pass" type="password" placeholder="Password"><button class="primary" style="width:100%;margin-top:10px" onclick="login()">Login</button><p id="err" class="muted"></p></div></div>
+
+
+<div id="paymentModal" class="payment-modal" onclick="if(event.target===this)closePaymentModal()">
+  <div class="payment-box">
+    <h2>Scan & Pay</h2>
+    <div class="payment-amount" id="payQrAmount">₹0.00</div>
+    <div id="paymentQrArea" class="qr-wrap"><div class="payment-loading">Loading QR…</div></div>
+    <div class="upi-id">UPI: 9718448382@axl</div>
+    <div class="payment-note">Scan with PhonePe, Google Pay, Paytm or any UPI app. Bill amount is pre-filled.</div>
+    <button class="pay-success-btn" onclick="markQrPaymentSuccess()">✓ Payment Successfully</button>
+    <button class="pay-cancel-btn" onclick="closePaymentModal()">Close</button>
+  </div>
+</div>
+<div id="successModal" class="success-modal">
+  <div class="success-box">
+    <div class="success-icon">✓</div>
+    <h2 id="successTitle">Payment Successfully</h2>
+    <p id="successText">Payment recorded successfully.</p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import{getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,reauthenticateWithCredential,EmailAuthProvider}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import{getFirestore,collection,getDocs,getDoc,addDoc,serverTimestamp,onSnapshot,query,orderBy,limit,deleteDoc,doc,setDoc}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+const config={apiKey:"AIzaSyDySwVvKkMdVDfQZEWO4wPl7tPThrlmnqQ",authDomain:"dhs-delhi-home-service.firebaseapp.com",projectId:"dhs-delhi-home-service",storageBucket:"dhs-delhi-home-service.firebasestorage.app",messagingSenderId:"729497010980",appId:"1:729497010980:web:c861571c0192464fb329b1"};
+const app=initializeApp(config),auth=getAuth(app),db=getFirestore(app);let bookings=[],payments=[],bills=[],knownBookingIds=new Set(),firstBookingSnapshot=true,unread=0,audioCtx=null,ringTimer=null,unsubBookings=null;
+
+const $=x=>document.getElementById(x),money=n=>"₹"+Number(n||0).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+window.login=async()=>{try{await signInWithEmailAndPassword(auth,$("email").value.trim(),$("pass").value)}catch(e){$("err").textContent=e.code+" — "+e.message}};
+window.logout=()=>{stopAlarm();signOut(auth)};
+onAuthStateChanged(auth,u=>{if(!u){$("login").style.display="flex";if(unsubBookings)unsubBookings();}else{$("login").style.display="none";load()}});
+window.show=id=>{document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));let n={home:"nHome",bookings:"nBookings",payments:"nPayments"}[id];if(n)$(n).classList.add("active");if(id==="bookings")renderBookings();if(id==="payments")renderPayments();if(id==="profile")stopAlarm();};
+
+async function load(){
+ firstBookingSnapshot=true;
+ try{let s=await getDocs(collection(db,"bookings"));bookings=[];s.forEach(x=>{bookings.push({id:x.id,...x.data()});knownBookingIds.add(x.id)});$("bookingStat").textContent=bookings.length;renderBookings();renderRecent();}catch(e){$("recent").innerHTML='<div class="card">Bookings load nahi hui. Firestore rules check karo.</div>'}
+ try{let s=await getDocs(collection(db,"payments"));payments=[];s.forEach(x=>payments.push({id:x.id,...x.data()}));renderPayments();}catch(e){}
+ try{let s=await getDocs(collection(db,"bills"));bills=[];s.forEach(x=>{const d=x.data();if(d.invoice&&d.customerName)bills.push({id:x.id,...d})});$("billStat").textContent=bills.length;}catch(e){console.error("Bills load error:",e);$("billStat").textContent="0";}
+ startRealtimeBookings();
+}
+function startRealtimeBookings(){
+ if(unsubBookings)unsubBookings();
+ const q=query(collection(db,"bookings"),orderBy("createdAt","desc"),limit(100));
+ try{unsubBookings=onSnapshot(q,snap=>{
+   let fresh=[];snap.forEach(x=>fresh.push({id:x.id,...x.data()}));
+   if(!firstBookingSnapshot){snap.docChanges().forEach(ch=>{if(ch.type==="added"&&!knownBookingIds.has(ch.doc.id)){knownBookingIds.add(ch.doc.id);let b={id:ch.doc.id,...ch.doc.data()};bookings.unshift(b);newBookingAlert(b)}})}
+   firstBookingSnapshot=false;bookings=fresh;document.getElementById("bookingStat").textContent=bookings.length;renderBookings();renderRecent();
+ },e=>console.log("Realtime error",e));}catch(e){}
+}
+function newBookingAlert(b){
+ unread++;updateBadge();addNotification(b);ringAlarm();
+ if("Notification"in window&&Notification.permission==="granted"){new Notification("DHS New Booking",{body:(val(b,["name","customerName"],"Customer"))+" · "+val(b,["service","serviceType"],"Service"),icon:""})}
+}
+function addNotification(b){
+ let el=document.createElement("div");el.className="notif new";el.innerHTML="<b>🔔 New Booking</b><br><span class='muted'>"+esc(val(b,["name","customerName"],"Customer"))+" · "+esc(val(b,["service","serviceType"],"Service"))+"</span>";
+ $("notifList").prepend(el);
+}
+function updateBadge(){let b=$("notifBadge");b.textContent=unread;b.style.display=unread?"flex":"none";$("newStat").textContent=unread;$("notifBtn").classList.toggle("pulse",unread>0)}
+window.toggleNotifications=()=>{let p=$("notifPanel");p.classList.toggle("show");if(p.classList.contains("show")){unread=0;updateBadge();stopAlarm()}};
+window.clearNotifications=()=>{$("notifList").innerHTML='<div class="muted">No new notifications.</div>';unread=0;updateBadge();stopAlarm()};
+
+function todayKeyLocal(){
+  const d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function docIsToday(d){
+  if(!d) return false;
+  const candidates=[d.createdAt,d.updatedAt,d.date,d.paymentDate,d.createdDate,d.timestamp];
+  for(const v of candidates){
+    if(v==null) continue;
+    let dt=null;
+    if(typeof v==="string"){
+      const s=v.trim();
+      if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s===todayKeyLocal();
+      const parsed=new Date(s);
+      if(!isNaN(parsed)) dt=parsed;
+    }else if(v&&typeof v.toDate==="function"){
+      dt=v.toDate();
+    }else if(v&&typeof v.seconds==="number"){
+      dt=new Date(v.seconds*1000);
+    }else if(v instanceof Date){
+      dt=v;
+    }
+    if(dt&&!isNaN(dt)&&dt.getFullYear()===new Date().getFullYear()&&dt.getMonth()===new Date().getMonth()&&dt.getDate()===new Date().getDate()) return true;
+  }
+  return false;
+}
+function openResetToday(){
+  $("resetPassword").value="";
+  $("resetPasswordError").textContent="";
+  $("forgotResetBtn").style.display="none";
+  $("resetPasswordModal").classList.add("show");
+  $("resetPasswordModal").setAttribute("aria-hidden","false");
+  setTimeout(()=>$("resetPassword").focus(),80);
+}
+function closeResetToday(){
+  $("resetPasswordModal").classList.remove("show");
+  $("resetPasswordModal").setAttribute("aria-hidden","true");
+}
+function showResetModal(id){
+  $(id).classList.add("show");
+  $(id).setAttribute("aria-hidden","false");
+}
+function hideResetModal(id){
+  $(id).classList.remove("show");
+  $(id).setAttribute("aria-hidden","true");
+}
+window.openResetToday=openResetToday;
+window.closeResetToday=closeResetToday;
+
+window.confirmResetToday=async()=>{
+  const password=$("resetPassword").value;
+  if(!password){$("resetPasswordError").textContent="Reset password enter karein.";return}
+  let stored="";
+  try{
+    const resetRef=doc(db,"settings","adminReset");
+    const resetSnap=await getDoc(resetRef);
+    if(resetSnap.exists()) stored=(resetSnap.data()||{}).resetPassword||"";
+  }catch(e){
+    $("resetPasswordError").textContent="Firebase settings read nahi ho paayi.";
+    $("forgotResetBtn").style.display="inline-block";
+    return;
+  }
+  if(!stored){
+    $("resetPasswordError").textContent="Reset password Firebase me set nahi hai.";
+    $("forgotResetBtn").style.display="inline-block";
+    return;
+  }
+  if(password!==stored){
+    $("resetPasswordError").textContent="Wrong reset password. Please try again.";
+    return;
+  }
+
+  closeResetToday();
+  showResetModal("resetLoadingModal");
+
+  try{
+    // Reset Today Update: clear the current admin dashboard data.
+    // The button is intended as an admin reset, so remove every document
+    // from the three dashboard collections. Firestore rules still require auth.
+    const targets=["bookings","bills","payments"];
+    for(const name of targets){
+      const snap=await getDocs(collection(db,name));
+      const jobs=[];
+      snap.forEach(docSnap=>jobs.push(deleteDoc(docSnap.ref)));
+      await Promise.all(jobs);
+    }
+
+    if(unsubBookings){unsubBookings();unsubBookings=null;}
+    knownBookingIds.clear();
+    firstBookingSnapshot=true;
+    bookings=[];
+    bills=[];
+    payments=[];
+
+    unread=0;
+    if($("notifList"))$("notifList").innerHTML='<div class="muted">No new notifications.</div>';
+    if(typeof updateBadge==="function")updateBadge();
+    if(typeof stopAlarm==="function")stopAlarm();
+
+    if(typeof bookings!=="undefined")bookings=bookings.filter(b=>!docIsToday(b));
+    if(typeof bills!=="undefined")bills=bills.filter(b=>!docIsToday(b));
+    if(typeof payments!=="undefined")payments=payments.filter(p=>!docIsToday(p));
+
+    if($("bookingStat"))$("bookingStat").textContent="0";
+    if($("billStat"))$("billStat").textContent="0";
+    if($("paymentStat"))$("paymentStat").textContent="₹0.00";
+    if($("totalPaymentStat"))$("totalPaymentStat").textContent="₹0.00";
+    if(typeof renderPayments==="function")renderPayments();
+    if(typeof renderBookings==="function")renderBookings();
+    if(typeof renderRecent==="function")renderRecent();
+
+    await new Promise(r=>setTimeout(r,5000));
+    hideResetModal("resetLoadingModal");
+    showResetModal("resetSuccessModal");
+
+    setTimeout(async()=>{
+      hideResetModal("resetSuccessModal");
+      show("home");
+      try{await load()}catch(e){}
+    },3000);
+  }catch(e){
+    hideResetModal("resetLoadingModal");
+    $("resetPassword").value="";
+    $("resetPasswordError").textContent="Delete nahi ho saka: "+(e.code||e.message||"Firestore error");
+    showResetModal("resetPasswordModal");
+  }
+};
+
+
+
+
+function startAudio(){if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")audioCtx.resume()}
+function beep(){if(!audioCtx)return;let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type="square";o.frequency.value=880;g.gain.setValueAtTime(.0001,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.22,audioCtx.currentTime+.02);g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+.22);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+.24)}
+function ringAlarm(){try{startAudio();stopAlarm();beep();ringTimer=setInterval(()=>{beep();setTimeout(beep,330);},1200)}catch(e){}}
+function stopAlarm(){if(ringTimer){clearInterval(ringTimer);ringTimer=null}}
+window.addEventListener("focus",()=>stopAlarm());window.addEventListener("pageshow",()=>stopAlarm());document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")stopAlarm()});
+if("Notification"in window&&Notification.permission==="default"){document.addEventListener("click",()=>Notification.requestPermission(),{once:true})}
+// PWA install
+let deferredInstallPrompt=null;
+function canUseNativeInstall(){
+  return !!deferredInstallPrompt;
+}
+window.addEventListener("beforeinstallprompt",e=>{
+  e.preventDefault();
+  deferredInstallPrompt=e;
+  const small=$("installSmallBtn"), old=$("installBtn");
+  if(small)small.classList.add("show");
+  if(old)old.style.display="none";
+});
+window.installDHS=async()=>{
+  if(!deferredInstallPrompt){
+    // On browsers without the native prompt, guide the user instead of pretending a download happened.
+    if(/Android/i.test(navigator.userAgent)){
+      alert("Chrome menu (⋮) → Add to Home screen / Install app select karein.");
+    }else{
+      alert("Browser menu se “Add to Home Screen” ya “Install App” select karein.");
+    }
+    return;
+  }
+  const promptEvent=deferredInstallPrompt;
+  try{
+    promptEvent.prompt();
+    await promptEvent.userChoice;
+  }catch(e){}
+  deferredInstallPrompt=null;
+  const small=$("installSmallBtn"), old=$("installBtn");
+  if(small)small.classList.remove("show");
+  if(old)old.style.display="none";
+};
+window.addEventListener("appinstalled",()=>{
+  deferredInstallPrompt=null;
+  const small=$("installSmallBtn"), old=$("installBtn");
+  if(small)small.classList.remove("show");
+  if(old)old.style.display="none";
+});
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}
+
+
+function val(b,a,d=""){for(const k of a)if(b[k]!=null&&b[k]!=="")return b[k];return d}
+window.sendBookingToDHSWhatsApp=(encoded)=>{
+  try{
+    const b=JSON.parse(decodeURIComponent(encoded));
+    const customer=val(b,["name","customerName"],"Customer");
+    const phone=val(b,["phone","customerPhone"],"—");
+    const service=val(b,["service","serviceType"],"Service");
+    const area=val(b,["area"],"");
+    const address=val(b,["address","customerAddress"],area||"—");
+    const details=val(b,["details","message","problem"],"—");
+    const bookingId=b.id||val(b,["bookingId"],"—");
+    const status=val(b,["status"],"New");
+    const message=[
+      "🔔 *NEW DHS BOOKING*",
+      "",
+      "👤 Customer: "+customer,
+      "📞 Customer Phone: "+phone,
+      "🔧 Service: "+service,
+      "📍 Area: "+(area||"—"),
+      "🏠 Address: "+address,
+      "📝 Details: "+details,
+      "📌 Status: "+status,
+      "🆔 Booking ID: "+bookingId,
+      "",
+      "Delhi Home Service Admin"
+    ].join("\n");
+    const url="https://wa.me/919718448382?text="+encodeURIComponent(message);
+    window.open(url,"_blank");
+  }catch(e){console.error(e);toast("Booking WhatsApp par send nahi ho saki")}
+};
+
+window.renderBookings=()=>{let q=($("search")?.value||"").toLowerCase();let f=bookings.filter(b=>[val(b,["name","customerName"]),val(b,["phone","customerPhone"]),val(b,["service","serviceType"]),val(b,["area","address","customerAddress"])].join(" ").toLowerCase().includes(q));$("bookingList").innerHTML=f.map(b=>{return `<div class="booking"><h3>👤 ${esc(val(b,["name","customerName"],"Customer"))}</h3><div class="muted">📞 ${esc(val(b,["phone","customerPhone"]))}<br>🔧 ${esc(val(b,["service","serviceType"],"Service"))}<br>📍 ${esc(val(b,["address","customerAddress","area"],"—"))}<br>📝 ${esc(val(b,["details","message","problem"],"—"))}</div><div class="row" style="margin-top:9px"><button class="primary" onclick="billFrom('${encodeURIComponent(JSON.stringify(b))}')">🧾 Bill</button><button class="green" onclick="sendBookingToDHSWhatsApp('${encodeURIComponent(JSON.stringify(b))}')">WhatsApp</button></div></div>`}).join("")||'<div class="card">📋 Abhi koi booking nahi mili.</div>'};
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function renderRecent(){$("recent").innerHTML=bookings.slice(0,5).map(b=>`<div class="card"><b>${esc(val(b,["name","customerName"],"Customer"))}</b><div class="muted">${esc(val(b,["service","serviceType"],"Service"))} · ${esc(val(b,["area","address"],""))}</div></div>`).join("")}
+window.billFrom=e=>{let b=JSON.parse(decodeURIComponent(e));show("bill");$("name").value=val(b,["name","customerName"]);$("phone").value=val(b,["phone","customerPhone"]);$("address").value=val(b,["address","customerAddress","area"]);$("service").value=val(b,["service","serviceType"]);$("items").innerHTML="";$("invoice").value="DHS-"+Date.now().toString().slice(-6);$("date").value=new Date().toISOString().slice(0,10);$("discount").value=0;$("paymentStatus").value="PENDING";$("paymentMethod").value="Cash";addItem(val(b,["service","serviceType"],"Service"),val(b,["details","message","problem"],""),1,0);generate()};
+
+let itemNo=0;
+window.addItem=(desc="",details="",qty=1,rate=0)=>{
+ itemNo++;
+ let x=document.createElement("div");x.className="bill-item-row";
+ x.innerHTML=`<div>${itemNo}</div><input class="desc" value="${esc(desc)}" placeholder="Description" oninput="calc()"><input class="details" value="${esc(details)}" placeholder="Details"><input class="qty" type="number" value="${qty}" min="1" oninput="calc()"><input class="rate" type="number" value="${rate}" min="0" oninput="calc()"><div class="bill-amount">₹0.00</div><button class="bill-del" onclick="this.parentElement.remove();renumberBillItems();calc()">×</button>`;
+ $("items").appendChild(x);calc()
+};
+function renumberBillItems(){[...document.querySelectorAll(".bill-item-row")].forEach((x,i)=>x.children[0].textContent=i+1);itemNo=document.querySelectorAll(".bill-item-row").length}
+function calc(){
+ let sub=0;document.querySelectorAll(".bill-item-row").forEach(x=>{let q=+x.querySelector(".qty").value||0,r=+x.querySelector(".rate").value||0,a=q*r;sub+=a;x.querySelector(".bill-amount").textContent=money(a)});
+ let d=+$("discount").value||0;let total=Math.max(0,sub-d);$("subtotal").textContent=money(sub);$("total").textContent=money(total)
+}
+function numberWords(n){
+ n=Math.round(n);if(!n)return"Rupees Zero";let o=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"],t=["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+ let two=x=>x<20?o[x]:t[Math.floor(x/10)]+(x%10?" "+o[x%10]:""),three=x=>x>=100?o[Math.floor(x/100)]+" Hundred"+(x%100?" "+two(x%100):""):two(x%100);
+ let s="";if(n>=10000000){s+=three(Math.floor(n/10000000))+" Crore ";n%=10000000}if(n>=100000){s+=three(Math.floor(n/100000))+" Lakh ";n%=100000}if(n>=1000){s+=three(Math.floor(n/1000))+" Thousand ";n%=1000}if(n)s+=three(n);return"Rupees "+s.trim()
+}
+window.openBillHistory=()=>{
+ const modal=$("billHistoryModal"),list=$("billHistoryList");
+ const sorted=[...bills].sort((a,b)=>{const aa=a.createdAt?.seconds||0,bb=b.createdAt?.seconds||0;return bb-aa;});
+ list.innerHTML=sorted.length?sorted.map(b=>`<div class="bill-history-item"><div class="bill-history-row"><div><b>${esc(b.invoice||"DHS-BILL")}</b><div class="muted">${esc(b.customerName||"Customer")} · ${esc(b.phone||"")}</div><div class="muted">${esc(b.date||"")} · ${esc(b.service||"")}</div></div><button class="bill-history-view" onclick="viewSavedBill('${String(b.id).replace("'","\\'")}')">View Bill</button></div><h3>${money(b.total||0)}</h3><div class="muted">Payment: ${esc(b.paymentStatus||"PENDING")} · ${esc(b.paymentMethod||"")}</div></div>`).join(""):'<div class="bill-history-empty">No bills generated yet.</div>';
+ modal.classList.add("show");modal.setAttribute("aria-hidden","false");
+};
+window.closeBillHistory=()=>{$("billHistoryModal").classList.remove("show");$("billHistoryModal").setAttribute("aria-hidden","true")};
+window.viewSavedBill=async(id)=>{
+ const b=bills.find(x=>x.id===id);if(!b)return;
+ closeBillHistory();show("bill");
+ $("name").value=b.customerName||"";$("phone").value=b.phone||"";$("invoice").value=b.invoice||"";$("date").value=b.date||"";$("address").value=b.address||"";$("service").value=b.service||"";$("discount").value=b.discount||0;$("paymentStatus").value=b.paymentStatus||"PENDING";$("paymentMethod").value=b.paymentMethod||"Cash";$("notes").value=b.notes||"";
+ $("items").innerHTML="";itemNo=0;(b.items||[]).forEach(x=>addItem(x.description||"",x.details||"",x.qty||1,x.rate||0));if(!(b.items||[]).length)addItem("Service","",1,0);
+ await generate();window.scrollTo({top:0,behavior:"smooth"});
+};
+
+window.resetBill=()=>{
+ $("name").value=$("phone").value=$("address").value=$("service").value="";
+ $("invoice").value="DHS-"+Date.now().toString().slice(-6);$("date").value=new Date().toISOString().slice(0,10);
+ $("discount").value=0;$("paymentStatus").value="PAID";$("paymentMethod").value="Cash";$("notes").value="• All work has been completed successfully.\n• Please ensure payment is made upon completion of service.\n• Thank you for choosing Delhi Home Service.";
+ $("items").innerHTML="";itemNo=0;addItem("Service","",1,0);generate()
+};
+window.generate=async()=>{
+ let sub=0,items=[];
+ document.querySelectorAll(".bill-item-row").forEach((x,i)=>{let q=+x.querySelector(".qty").value||0,r=+x.querySelector(".rate").value||0,a=q*r;sub+=a;items.push({description:x.querySelector(".desc").value.trim(),details:x.querySelector(".details").value.trim(),qty:q,rate:r,amount:a})});
+ let d=+$("discount").value||0,total=Math.max(0,sub-d);
+ $("pName").textContent=$("name").value||"—";$("pPhone").textContent=$("phone").value||"—";$("pAddress").textContent=$("address").value||"—";$("pService").textContent=$("service").value||"—";$("pInvoice").textContent=$("invoice").value||"DHS-0000";$("pDate").textContent=$("date").value||"";
+ $("pItems").innerHTML=items.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.description)}</td><td>${esc(x.details)}</td><td>${x.qty}</td><td>${money(x.rate).replace("₹","")}</td><td>${money(x.amount).replace("₹","")}</td></tr>`).join("");
+ $("pSubtotal").textContent=money(sub);$("pDiscount").textContent="- "+money(d);$("pTotal").textContent=money(total);$("total").textContent=money(total);$("subtotal").textContent=money(sub);
+ $("pWords").textContent="("+numberWords(total)+" Only)";$("pStatus").textContent="Payment Status: "+$("paymentStatus").value;
+ $("pNotes").innerHTML="";($("notes").value||"All work has been completed successfully.").split(/\r?\n/).filter(Boolean).forEach(v=>{let li=document.createElement("li");li.textContent=v.replace(/^•\s*/,"");$("pNotes").appendChild(li)});
+ try{
+  let inv=$("invoice").value,exists=bills.some(x=>x.invoice===inv);
+  if(!exists&&$("name").value.trim()){let ref=await addDoc(collection(db,"bills"),{invoice:inv,customerName:$("name").value,phone:$("phone").value,address:$("address").value,service:$("service").value,items,subtotal:sub,discount:d,total,date:$("date").value,notes:$("notes").value,paymentStatus:$("paymentStatus").value,paymentMethod:$("paymentMethod").value,createdAt:serverTimestamp()});bills.push({id:ref.id,invoice:inv,customerName:$("name").value,phone:$("phone").value,address:$("address").value,service:$("service").value,items,subtotal:sub,discount:d,total,date:$("date").value,notes:$("notes").value,paymentStatus:$("paymentStatus").value,paymentMethod:$("paymentMethod").value,createdAt:{seconds:Math.floor(Date.now()/1000)}});$("billStat").textContent=bills.length;}
+ }catch(e){console.error("Bill save error",e);if(e?.code==="permission-denied")alert("Bill save nahi hua. Firebase Firestore Rules me bills collection ke read/create permission deni hogi.");else alert("Bill save nahi hua: "+(e?.message||e));}
+ return total
+};
+window.printBill=()=>{generate();setTimeout(()=>print(),400)};
+window.downloadPDF=window.printBill;
+
+let activePayment=null;
+const DHS_UPI_ID="9718448382@axl";
+const DHS_PAYEE="Delhi Home Service";
+function currentBillData(){
+  const total=parseFloat(($('total').textContent||'0').replace(/[^0-9.]/g,''))||0;
+  return {amount:total,invoice:$('invoice').value||('DHS-'+Date.now().toString().slice(-6)),customerName:$('name').value.trim()||'Customer',phone:$('phone').value.trim(),date:$('date').value||new Date().toISOString().slice(0,10)};
+}
+function playSuccessFeedback(){
+  try{
+    if(navigator.vibrate) navigator.vibrate([180,80,180,80,300]);
+    const C=window.AudioContext||window.webkitAudioContext;
+    if(C){const ctx=new C(); if(ctx.state==='suspended')ctx.resume();
+      [660,880,1040].forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='square';o.frequency.value=f;g.gain.setValueAtTime(.0001,ctx.currentTime+i*.12);g.gain.exponentialRampToValueAtTime(.25,ctx.currentTime+i*.12+.02);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+i*.12+.12);o.connect(g);g.connect(ctx.destination);o.start(ctx.currentTime+i*.12);o.stop(ctx.currentTime+i*.12+.14)});
+      setTimeout(()=>ctx.close().catch(()=>{}),700);
+    }
+  }catch(e){console.log('feedback error',e)}
+}
+function showSuccess(title='Payment Successfully',text='Payment recorded successfully.'){playSuccessFeedback();$('successTitle').textContent=title;$('successText').textContent=text;$('successModal').classList.add('show');}
+function hideSuccess(){$('successModal').classList.remove('show')}
+function closePaymentModal(){$('paymentModal').classList.remove('show');activePayment=null}
+window.payQR=async()=>{
+  const b=await generate();
+  const data=currentBillData();
+  if(data.amount<=0){showSuccess('Amount Required','Bill total ₹0.00 hai. Pehle bill amount add karein.');setTimeout(hideSuccess,4000);return}
+  activePayment=data;
+  $('payQrAmount').textContent=money(data.amount);
+  $('paymentQrArea').innerHTML='<div class="payment-loading">Loading QR…</div>';
+  $('paymentModal').classList.add('show');
+  setTimeout(()=>{
+    if(!activePayment)return;
+    const uri='upi://pay?pa='+encodeURIComponent(DHS_UPI_ID)+'&pn='+encodeURIComponent(DHS_PAYEE)+'&am='+encodeURIComponent(data.amount.toFixed(2))+'&cu=INR&tn='+encodeURIComponent('Bill '+data.invoice);
+    $('paymentQrArea').innerHTML='';
+    if(window.QRCode){new QRCode($('paymentQrArea'),{text:uri,width:260,height:260,correctLevel:QRCode.CorrectLevel.M});}
+    else{$('paymentQrArea').innerHTML='<div style="padding:30px;color:#c00">QR library load nahi hui. Internet check karein.</div>'}
+  },3000);
+};
+window.payCash=async()=>{
+  const b=await generate();
+  const data=currentBillData();
+  if(data.amount<=0){showSuccess('Amount Required','Bill total ₹0.00 hai. Pehle bill amount add karein.');setTimeout(hideSuccess,4000);return}
+  try{
+    await addDoc(collection(db,'payments'),{billId:data.invoice,invoice:data.invoice,customerName:data.customerName,phone:data.phone,amount:data.amount,total:data.amount,method:'Cash',mode:'Cash',paymentStatus:'SUCCESS',date:data.date,paymentDate:new Date().toISOString().slice(0,10),paymentTime:new Date().toLocaleTimeString('en-IN'),createdAt:serverTimestamp()});
+    payments.push({invoice:data.invoice,customerName:data.customerName,phone:data.phone,amount:data.amount,total:data.amount,method:'Cash',paymentStatus:'SUCCESS',date:data.date,paymentDate:new Date().toISOString().slice(0,10),paymentTime:new Date().toLocaleTimeString('en-IN')});
+    $('paymentStatus').value='PAID';$('paymentMethod').value='Cash';$('pStatus').textContent='Payment Status: PAID';renderPayments();
+    showSuccess('Cash Payment Successfully','Cash payment '+money(data.amount)+' recorded.');
+    setTimeout(hideSuccess,4000);
+  }catch(e){console.error(e);showSuccess('Payment Save Error','Payment save nahi ho saki. Firestore rules check karein.');setTimeout(hideSuccess,4000)}
+};
+window.markQrPaymentSuccess=async()=>{
+  if(!activePayment)return;
+  const data=activePayment;
+  try{
+    await addDoc(collection(db,'payments'),{billId:data.invoice,invoice:data.invoice,customerName:data.customerName,phone:data.phone,amount:data.amount,total:data.amount,method:'UPI QR',mode:'UPI QR',paymentStatus:'SUCCESS',date:data.date,paymentDate:new Date().toISOString().slice(0,10),paymentTime:new Date().toLocaleTimeString('en-IN'),createdAt:serverTimestamp()});
+    payments.push({invoice:data.invoice,customerName:data.customerName,phone:data.phone,amount:data.amount,total:data.amount,method:'UPI QR',paymentStatus:'SUCCESS',date:data.date,paymentDate:new Date().toISOString().slice(0,10),paymentTime:new Date().toLocaleTimeString('en-IN')});
+    $('paymentStatus').value='PAID';$('paymentMethod').value='UPI';$('pStatus').textContent='Payment Status: PAID';renderPayments();closePaymentModal();
+    showSuccess('Payment Successfully','UPI QR payment '+money(data.amount)+' recorded.');
+    setTimeout(()=>{hideSuccess();show('bill');$('invoice').scrollIntoView({behavior:'smooth'});},4000);
+  }catch(e){console.error(e);showSuccess('Payment Save Error','Payment save nahi ho saki. Firestore rules check karein.');setTimeout(hideSuccess,4000)}
+};
+window.resetBill();
+
+function renderPayments(){let total=payments.reduce((s,p)=>s+(+val(p,["amount","total","paid"],0)||0),0);$("paymentStat").textContent=money(total);$("paymentsList").innerHTML=payments.map(p=>`<div class="card"><b>${esc(val(p,["customerName","name"],"Payment"))}</b><div class="muted">${esc(val(p,["method","mode"],""))}</div><h3>${money(val(p,["amount","total","paid"],0))}</h3></div>`).join("")||'<div class="card">No payments found.</div>'}
+</script></body></html>
